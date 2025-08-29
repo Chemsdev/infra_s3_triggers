@@ -65,6 +65,6 @@ resource "aws_s3_bucket_notification" "triggers_hubspot_project" {
   depends_on = [
     aws_lambda_permission.allow_s3_pdf_ocr,
     aws_lambda_permission.allow_s3_llm_generate,
-    aws_lambda_permission.allow_s3_create_deal,
+    aws_lambda_permission.allow_s3_create_deal
   ]
 }
