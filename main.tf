@@ -25,7 +25,7 @@ resource "aws_lambda_permission" "allow_s3_pdf_ocr" {
   action        = "lambda:InvokeFunction"
   function_name = data.aws_lambda_function.hubspot-pdf-ocr-processor.function_name
   principal     = "s3.amazonaws.com"
-  source_arn    = "arn:aws:s3:::matching-project"
+  source_arn    = "arn:aws:s3:::hubspot-tickets-pdf"
 }
 
 resource "aws_lambda_permission" "allow_s3_llm_generate" {
@@ -33,7 +33,7 @@ resource "aws_lambda_permission" "allow_s3_llm_generate" {
   action        = "lambda:InvokeFunction"
   function_name = data.aws_lambda_function.hubspot-llm-generate-json.function_name
   principal     = "s3.amazonaws.com"
-  source_arn    = "arn:aws:s3:::matching-project"
+  source_arn    = "arn:aws:s3:::hubspot-tickets-pdf"
 }
 
 # resource "aws_lambda_permission" "allow_s3_create_deals" {
@@ -41,7 +41,7 @@ resource "aws_lambda_permission" "allow_s3_llm_generate" {
 #   action        = "lambda:InvokeFunction"
 #   function_name = data.aws_lambda_function.hubspot-create-deals.function_name
 #   principal     = "s3.amazonaws.com"
-#   source_arn    = "arn:aws:s3:::matching-project"
+#   source_arn    = "arn:aws:s3:::hubspot-tickets-pdf"
 # }
 
 # === Permission CloudWatch → Lambda pour cron ===
