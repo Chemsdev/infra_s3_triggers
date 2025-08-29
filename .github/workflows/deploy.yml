@@ -1,0 +1,49 @@
+name: Deploy S3 Triggers
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-s3-triggers:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Récupération du code
+      - name: 📥 Checkout du repo
+        uses: actions/checkout@v3
+
+      # 2️⃣ Setup Python (utile pour compat éventuelle ou debug S3)
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      # 3️⃣ Configuration des identifiants AWS
+      - name: 🔐 Configurer les identifiants AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id:     ${{ secrets.ACCESS_KEY_ID_CHEMS }}
+          aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY_CHEMS }}
+          aws-region:            eu-central-1
+
+      # 4️⃣ Installation de Terraform
+      - name: 🌍 Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.7
+
+      # 5️⃣ Initialisation Terraform
+      - name: Terraform Init
+        run: terraform init
+
+      # 6️⃣ Affichage du plan (sécurité)
+      - name: Terraform Plan
+        run: terraform plan
+
+      # 7️⃣ Application auto du plan
+      - name: Terraform Apply
+        env:
+          TF_LOG: INFO
+        run: terraform apply -auto-approve
