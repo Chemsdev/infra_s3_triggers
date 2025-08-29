@@ -65,8 +65,8 @@ resource "aws_cloudwatch_event_target" "target_get_pdf_daily" {
 }
 
 # === Notifications S3 pour les autres lambdas ===
-resource "aws_s3_bucket_notification" "triggers_matching_project" {
-  bucket = "matching-project"
+resource "aws_s3_bucket_notification" "triggers_hubspot_project" {
+  bucket = "hubspot-tickets-pdf"
 
   lambda_function {
     lambda_function_arn = data.aws_lambda_function.hubspot-pdf-ocr-processor.arn
