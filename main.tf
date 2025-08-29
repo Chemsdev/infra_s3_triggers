@@ -50,23 +50,25 @@ resource "aws_cloudwatch_event_rule" "get_pdf_daily" {
   schedule_expression = "cron(0 6 * * ? *)"
 }
 
-# === Permission CloudWatch → Lambda via null_resource pour éviter le blocage ===
-resource "null_resource" "allow_cloudwatch_get_pdf" {
-  provisioner "local-exec" {
-    command = <<EOT
-aws lambda add-permission \
-  --function-name hubspot-get-pdf-of-day \
-  --statement-id AllowExecutionFromCloudWatch \
-  --action lambda:InvokeFunction \
-  --principal events.amazonaws.com \
-  --source-arn ${aws_cloudwatch_event_rule.get_pdf_daily.arn}
-EOT
-  }
+# === Permission CloudWatch → Lambda stable ===
+resource "aws_lambda_permission" "allow_cloudwatch_get_pdf" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = data.aws_lambda_function.hubspot_get_pdf_of_day.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.get_pdf_daily.arn
 
   depends_on = [
     aws_cloudwatch_event_rule.get_pdf_daily,
     data.aws_lambda_function.hubspot_get_pdf_of_day
   ]
+
+  lifecycle {
+    ignore_changes = [
+      statement_id,
+      source_arn
+    ]
+  }
 }
 
 # === EventBridge target pour hubspot-get-pdf-of-day ===
@@ -76,7 +78,7 @@ resource "aws_cloudwatch_event_target" "target_get_pdf_daily" {
   arn       = data.aws_lambda_function.hubspot_get_pdf_of_day.arn
 
   depends_on = [
-    null_resource.allow_cloudwatch_get_pdf
+    aws_lambda_permission.allow_cloudwatch_get_pdf
   ]
 }
 
