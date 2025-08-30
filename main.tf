@@ -3,7 +3,20 @@ data "aws_s3_bucket" "hubspot_tickets_pdf" {
   bucket = "hubspot-tickets-pdf"
 }
 
-# Permissions Lambda pour S3 (inchangées)
+# On référence les Lambdas existantes
+data "aws_lambda_function" "hubspot_pdf_ocr_processor" {
+  function_name = "hubspot-pdf-ocr-processor"
+}
+
+data "aws_lambda_function" "hubspot_llm_generate_json" {
+  function_name = "hubspot-llm-generate-json"
+}
+
+data "aws_lambda_function" "hubspot_create_deal" {
+  function_name = "hubspot-create-deal"
+}
+
+# Permissions Lambda pour S3
 resource "aws_lambda_permission" "allow_s3_pdf_ocr" {
   statement_id  = "AllowExecutionFromS3BucketPDF"
   action        = "lambda:InvokeFunction"
