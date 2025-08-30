@@ -18,7 +18,7 @@ data "aws_lambda_function" "hubspot_create_deal" {
 resource "aws_lambda_permission" "allow_s3_pdf_ocr" {
   statement_id  = "AllowExecutionFromS3BucketPDF"
   action        = "lambda:InvokeFunction"
-  function_name = data.aws_lambda_function.hubspot_pdf_ocr_processor.function_name
+  function_name = data.aws_lambda_function.hubspot_pdf_ocr_processor.arn
   principal     = "s3.amazonaws.com"
   source_arn    = "arn:aws:s3:::hubspot-tickets-pdf"
 }
@@ -26,7 +26,7 @@ resource "aws_lambda_permission" "allow_s3_pdf_ocr" {
 resource "aws_lambda_permission" "allow_s3_llm_generate" {
   statement_id  = "AllowExecutionFromS3BucketOCR"
   action        = "lambda:InvokeFunction"
-  function_name = data.aws_lambda_function.hubspot_llm_generate_json.function_name
+  function_name = data.aws_lambda_function.hubspot_llm_generate_json.arn
   principal     = "s3.amazonaws.com"
   source_arn    = "arn:aws:s3:::hubspot-tickets-pdf"
 }
@@ -34,11 +34,10 @@ resource "aws_lambda_permission" "allow_s3_llm_generate" {
 resource "aws_lambda_permission" "allow_s3_create_deal" {
   statement_id  = "AllowExecutionFromS3BucketDeals"
   action        = "lambda:InvokeFunction"
-  function_name = data.aws_lambda_function.hubspot_create_deal.function_name
+  function_name = data.aws_lambda_function.hubspot_create_deal.arn
   principal     = "s3.amazonaws.com"
   source_arn    = "arn:aws:s3:::hubspot-tickets-pdf"
 }
-
 
 # === Notifications S3 pour les autres lambdas ===
 resource "aws_s3_bucket_notification" "triggers_hubspot_project" {
