@@ -68,3 +68,6 @@ resource "aws_s3_bucket_notification" "triggers_hubspot_project" {
     aws_lambda_permission.allow_s3_create_deal
   ]
 }
+
+
+
