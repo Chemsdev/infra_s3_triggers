@@ -1,20 +1,9 @@
-provider "aws" {
-  region = "eu-central-1"
+# On référence le bucket existant
+data "aws_s3_bucket" "hubspot_tickets_pdf" {
+  bucket = "hubspot-tickets-pdf"
 }
 
-data "aws_lambda_function" "hubspot_pdf_ocr_processor" {
-  function_name = "hubspot-pdf-ocr-processor"
-}
-
-data "aws_lambda_function" "hubspot_llm_generate_json" {
-  function_name = "hubspot-llm-generate-json"
-}
-
-data "aws_lambda_function" "hubspot_create_deal" {
-  function_name = "hubspot-create-deal"
-}
-
-# === Permissions S3 → Lambda ===
+# Permissions Lambda pour S3 (inchangées)
 resource "aws_lambda_permission" "allow_s3_pdf_ocr" {
   statement_id  = "AllowExecutionFromS3BucketPDF"
   action        = "lambda:InvokeFunction"
@@ -39,10 +28,9 @@ resource "aws_lambda_permission" "allow_s3_create_deal" {
   source_arn    = "arn:aws:s3:::hubspot-tickets-pdf"
 }
 
-
-# === Notifications S3 pour les autres lambdas ===
+# Notification S3 pour les Lambdas
 resource "aws_s3_bucket_notification" "triggers_hubspot_project" {
-  bucket = "hubspot-tickets-pdf"
+  bucket = data.aws_s3_bucket.hubspot_tickets_pdf.id
 
   lambda_function {
     lambda_function_arn = data.aws_lambda_function.hubspot_pdf_ocr_processor.arn
