@@ -14,7 +14,7 @@ jobs:
       - name: 📥 Checkout du repo
         uses: actions/checkout@v3
 
-      # 2️⃣ Setup Python (utile pour compat éventuelle ou debug S3)
+      # 2️⃣ Setup Python
       - name: 🐍 Setup Python
         uses: actions/setup-python@v4
         with:
@@ -38,11 +38,26 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      # 6️⃣ Affichage du plan (sécurité)
+      # 6️⃣ Suppression des anciennes permissions Lambda (évite les conflits)
+      - name: 🧹 Supprimer anciennes permissions Lambda
+        run: |
+          for lambda in hubspot-pdf-ocr-processor hubspot-llm-generate-json hubspot-create-deal; do
+            if aws lambda get-policy --function-name $lambda > /dev/null 2>&1; then
+              aws lambda get-policy --function-name $lambda \
+                | jq -r '.Policy | fromjson.Statement[]?.Sid' \
+                | grep AllowExecutionFromS3Bucket \
+                | while read sid; do
+                    echo "Suppression de $sid pour $lambda"
+                    aws lambda remove-permission --function-name $lambda --statement-id $sid || true
+                  done
+            fi
+          done
+
+      # 7️⃣ Affichage du plan
       - name: Terraform Plan
         run: terraform plan
 
-      # 7️⃣ Application auto du plan
+      # 8️⃣ Application auto du plan
       - name: Terraform Apply
         env:
           TF_LOG: INFO
